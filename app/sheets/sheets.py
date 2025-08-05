@@ -9,7 +9,7 @@ wks = sh.sheet1
 print(wks.get_all_values())
 
 def convert_row_to_item(row: list) -> Item:
-    return Item(prod_name=row[0], category=row[1], current_amount=row[2], target_amount=row[3], threshold_amount=row[4], tags=row[5], notes=row[6])
+    return Item(prod_name=row[0], category=row[1], current_amount=float(row[2]), target_amount=float(row[3]), threshold_amount=float(row[4]), tags=row[5], notes=row[6])
 
 def convert_item_to_row(item: Item) -> list:
     return [item.prod_name, item.category, item.current_amount, item.target_amount, item.threshold_amount, item.tags, item.notes]
@@ -17,7 +17,7 @@ def convert_item_to_row(item: Item) -> list:
 def get_values() -> list[Item]:
     vls = wks.get_all_values()
     res = []
-    for row in vls:
+    for row in vls[1:]:
         if row[0] != '':
             item = convert_row_to_item(row)
             res.append(item)
@@ -30,7 +30,8 @@ def get_items() -> list[Item]:
 
 def get_item(idx: int) -> Item | None:
     values = get_values()
-    if len(values) <= idx:
+    idx -= 2
+    if len(values) <= idx or idx < 0:
         return None
     return values[idx]
 
@@ -38,7 +39,7 @@ def get_last_row_id() -> int:
     """
     Returns last used row id
     """
-    return len(get_values())
+    return len(get_values()) + 1 # cause we don't count the first row that is the header
 
 def get_new_id() -> int:
     """
@@ -53,7 +54,7 @@ def get_new_id() -> int:
 def get_id_by_prod_name(prod_name: str) -> int | None:
     for id, val in enumerate(get_values()):
         if val.prod_name == prod_name:
-            return id+1
+            return id+2  # cause we don't count the first row that is the header
     return None
 
 def add_row(values: list) -> None:
