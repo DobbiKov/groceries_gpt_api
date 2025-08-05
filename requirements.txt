@@ -1,0 +1,9 @@
+google-api-python-client 
+google-auth-httplib2 
+google-auth-oauthlib
+fastapi>=0.111
+uvicorn[standard]>=0.29
+pygsheets
+python-dotenv>=1.0
+pydantic>=2.7
+pydantic_settings
