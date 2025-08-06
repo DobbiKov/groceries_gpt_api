@@ -17,3 +17,6 @@ class ItemQuery(BaseModel):
     threshold_amount: float = Field(..., description="Limit amount of the product after which the user should be notified")	
     tags: str = Field(..., description="Tags of the product (separated by | (vertical line))")
     notes: str = Field(..., description="Notes about the product")
+
+def convert_query_to_item(query: ItemQuery) -> Item:
+    return Item(prod_name=query.prod_name, category=query.category, current_amount=query.current_amount, target_amount=query.target_amount, threshold_amount=query.threshold_amount, tags=query.tags, notes=query.notes)

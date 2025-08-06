@@ -6,10 +6,15 @@ client = pygsheets.authorize()
 
 sh = client.open('groceries-db')
 wks = sh.sheet1
-print(wks.get_all_values())
 
 def convert_row_to_item(row: list) -> Item:
-    return Item(prod_name=row[0], category=row[1], current_amount=float(row[2]), target_amount=float(row[3]), threshold_amount=float(row[4]), tags=row[5], notes=row[6])
+    if row[2] == '':
+        row[2] = 0
+    if row[3] == '':
+        row[3] = 0
+    if row[4] == '':
+        row[4] = 0
+    return Item(prod_name=row[0], category=row[1], current_amount=float(row[2]) or 0, target_amount=float(row[3]) or 0, threshold_amount=float(row[4]) or 0, tags=row[5], notes=row[6])
 
 def convert_item_to_row(item: Item) -> list:
     return [item.prod_name, item.category, item.current_amount, item.target_amount, item.threshold_amount, item.tags, item.notes]
@@ -18,11 +23,11 @@ def get_values() -> list[Item]:
     vls = wks.get_all_values()
     res = []
     for row in vls[1:]:
-        if row[0] != '':
-            item = convert_row_to_item(row)
-            res.append(item)
-        else:
-            break
+        # if row[0] != '':
+        item = convert_row_to_item(row)
+        res.append(item)
+        # else:
+        #     break
     return res
 
 def get_items() -> list[Item]:
@@ -48,8 +53,18 @@ def get_new_id() -> int:
     
     new_id = get_last_row_id() + 1
     if new_id >= wks.rows:
-        wks.add_rows(100)
+        wks.add_rows(2)
     return new_id
+
+def get_first_empty_id() -> int:
+    id = 2
+    values = get_values()
+    for val in values:
+        if val.prod_name == '':
+            return id
+        else:
+            id += 1
+    return get_new_id()
 
 def get_id_by_prod_name(prod_name: str) -> int | None:
     for id, val in enumerate(get_values()):
@@ -58,7 +73,7 @@ def get_id_by_prod_name(prod_name: str) -> int | None:
     return None
 
 def add_row(values: list) -> None:
-    wks.update_row(get_new_id(), values)
+    wks.update_row(get_first_empty_id(), values)
 
 def add_item(item: Item) -> None:
     add_row(convert_item_to_row(item))
